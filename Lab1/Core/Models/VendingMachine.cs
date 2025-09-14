@@ -1,41 +1,56 @@
-﻿namespace Obj_OrientedProg.Lab1.Core.Models;
+﻿using Obj_OrientedProg.Lab1.Contracts.DTOs;
+
+namespace Obj_OrientedProg.Lab1.Core.Models;
 
 public class VendingMachine
 {
     private readonly Wallet _revenueMoney = new Wallet();
-    private readonly ProductStorage _productStorage = new ProductStorage();
 
-    private int _depositedAmount;
+    private readonly ProductStorage _productStorage = new ProductStorage();
+    public int DepositedAmount { get; private set; }
 
     public void AcceptCoin(Coin coin)
     {
-        _depositedAmount += (int)coin.NominalValue;
+        DepositedAmount += (int)coin.NominalValue;
+        PutCoinInCashRegister(coin);
+    }
+
+    public void PutCoinInCashRegister(Coin coin)
+    {
         _revenueMoney.PutCoin(coin);
     }
     
-    public HashSet<Coin> ReturnDepositedAmount()
+    public List<Coin> ReturnDepositedAmount()
     {
-        _depositedAmount = 0;
-        return _revenueMoney.GetCoinsForAmountOf(_depositedAmount);
+        int toReturnAmount = DepositedAmount;
+        DepositedAmount = 0;
+        return _revenueMoney.GetCoinsForAmountOf(toReturnAmount);
     }
 
-    public HashSet<Coin> StealRevenue()
+    public List<Coin> StealRevenue()
     {
         return _revenueMoney.GetAllCoins();
     }
         
     public Product BuyProduct(string productName)
     {
-        ProductBox productBox = _productStorage.GetProductBox(productName);
-        if (productBox.PricePerProduct > _depositedAmount)
+        var price = _productStorage.GetProductPrice(productName);
+        
+        if (price > DepositedAmount)
             throw new ApplicationException("You do not have enough money to buy this product");
         
-        _depositedAmount -= productBox.PricePerProduct;
-        return productBox.GetProduct();
+        DepositedAmount -= price;
+        return _productStorage.GetProduct(productName);
     }
 
-    public void AddProduct(Product product)
-    {
-        _productStorage.PutProduct(product);
-    }
+    public void AddProductToStorage(Product product) => _productStorage.PutProduct(product);
+    
+    public void ChangeProductsPrice(string productName, int newPrice) => 
+        _productStorage.ChangeProductPrice(productName, newPrice);
+
+    public List<ProductInfo> GetProductStorageInfo() => _productStorage.GetAllProductsInfo();
+    
+    public ProductInfo GetProductInfo(string productName) => _productStorage.GetProductInfo(productName);
+    public WalletInfo GetRevenueMoneyInfo() => _revenueMoney.GetWalletInfo();
+    
 }

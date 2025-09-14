@@ -1,4 +1,6 @@
-﻿namespace Obj_OrientedProg.Lab1.Core.Models;
+﻿using Obj_OrientedProg.Lab1.Contracts.DTOs;
+
+namespace Obj_OrientedProg.Lab1.Core.Models;
 
 public class ProductStorage
 {
@@ -13,25 +15,39 @@ public class ProductStorage
         _storage[productName].AddProduct(product);
     }
     
-    public void PutProducts(HashSet<Product> products)
+    public void PutProducts(List<Product> products)
     {
         foreach (var product in products)
             PutProduct(product);
     }
 
-    public void ChangeProductPrice(string productName, int newPrice)
+    public Product GetProduct(string productName)
     {
-        if (!_storage.TryGetValue(productName, out var box))
-            throw new KeyNotFoundException("Product not found");
-        
-        box.PricePerProduct = newPrice;
+        var box = GetBox(productName);
+        if (box.GetProductCount() == 0)
+            throw new KeyNotFoundException($"There's no {productName} product");
+
+        return box.GetProduct();
     }
 
-    public ProductBox GetProductBox(string productName)
-    {
-        if (!_storage.TryGetValue(productName, out var box) || box.GetProductCount() == 0)
-            throw new ArgumentException($"There's no {productName} product box");
+    public int GetProductPrice(string productName) => GetBox(productName).PricePerProduct;
+    public void ChangeProductPrice(string productName, int newPrice) => GetBox(productName).PricePerProduct = newPrice;
+    
+    public List<ProductInfo> GetAllProductsInfo() => 
+        _storage.Select(kvp => new ProductInfo(kvp.Key, kvp.Value.PricePerProduct, kvp.Value.GetProductCount()))
+            .ToList();
 
+    public ProductInfo GetProductInfo(string productName)
+    {
+        var box = GetBox(productName);
+        return new ProductInfo(productName, box.PricePerProduct, box.GetProductCount());
+    }
+
+    private ProductBox GetBox(string productName)
+    {
+        if (!_storage.TryGetValue(productName, out var box))
+            throw new KeyNotFoundException($"Product {productName} not found");
+        
         return box;
     }
 }

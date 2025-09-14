@@ -9,9 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Lab1\App\" />
+      <Folder Include="Lab1\Contracts\" />
       <Folder Include="Lab1\Core\Interfaces\" />
-      <Folder Include="Lab1\tests\" />
+      <Folder Include="Lab1\Tests\" />
     </ItemGroup>
 
 </Project>
