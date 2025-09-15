@@ -1,9 +1,19 @@
-﻿namespace Obj_OrientedProg.Lab1.App.UI;
+﻿using Obj_OrientedProg.Lab1.Contracts.DTOs;
 
-using Obj_OrientedProg.Lab1.Contracts.DTOs;
+namespace Obj_OrientedProg.Lab1.App.UI;
 
 public static class ConsoleView
 {
+    public static void ShowMainMenu()
+    {
+        Console.WriteLine("~~~~~ Меню ~~~~~");
+        Console.WriteLine("1. Старт");
+        Console.WriteLine("2. Посмотреть, сколько денег в кошельке");
+        Console.WriteLine("3. Пополнить кошелек");
+        Console.WriteLine("4. Выход");
+        Console.WriteLine("~~~~~~~~~~~~~~~~");
+        Console.WriteLine();
+    }
     public static void ShowCustomerMenu()
     {
         Console.WriteLine("~~~~~ Меню Клиента ~~~~~");
@@ -57,15 +67,15 @@ public static class ConsoleView
         Console.WriteLine();
     }
 
-    public static void DisplayMessage(string message, ConsoleColor color)
+    public static void DisplayMessage(string message, ConsoleColor color, bool toNewLine = true)
     {
         Console.ForegroundColor = color;
-        Console.WriteLine(message);
+        Console.Write(message);
+        if (toNewLine) Console.WriteLine();
         Console.ResetColor();
     }
 
-    public static void DisplayError(string message)
-    {
-        DisplayMessage(message, ConsoleColor.Magenta);
-    }
+    public static void DisplayError(string message) => DisplayMessage(message, ConsoleColor.Magenta);
+
+    public static void DisplayRequestMessage(string message) => DisplayMessage(message, ConsoleColor.Green, false);
 }

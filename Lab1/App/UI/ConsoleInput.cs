@@ -2,98 +2,58 @@
 
 namespace Obj_OrientedProg.Lab1.App.UI;
 
-// Этот класс тоже можно сделать статическим
 public static class ConsoleInput
 {
-    public static string ReadCommand()
+
+    public static bool TryReadWord(out string word)
     {
-        string? command = null;
-        while (string.IsNullOrWhiteSpace(command))
+        string? input = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(input))
         {
-            Console.Write("Выберите команду: ");
-            command = Console.ReadLine();
+            word = input;
+            return true;
         }
         
-        return command;
+        word = string.Empty;
+        return false;
     }
 
-    public static string ReadPassword()
+    public static bool TryReadWords(out List<string> words)
     {
-        string? password = null;
-        while (password is null)
+        if (!TryReadWord(out string wordsData))
         {
-            Console.Write("Введите пароль: ");
-            password = Console.ReadLine();
+            words = [];
+            return false;
+        }
+            
+        words = wordsData
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+        
+        return true;
+    }
+
+    public static bool TryReadNumber(out int number)
+    {
+        number = 0;
+        return TryReadWord(out string wordsData) && int.TryParse(wordsData, out number);
+    }
+
+    public static bool TryReadNominals(out List<int> validNominals, out List<string> invalidNominals)
+    {
+        validNominals = [];
+        invalidNominals = [];
+        
+        if (!TryReadWords(out var nominalsData))
+            return false;
+
+        foreach (var nominalData in nominalsData)
+        {
+            if (!int.TryParse(nominalData, out int nominal) || !Enum.IsDefined(typeof(NominalValue), nominal))
+                invalidNominals.Add(nominalData);
+            else validNominals.Add(nominal);
         }
         
-        return password;
-    }
-
-    public static (List<int> ValidNominals, List<string> IgnoredInputs) ReadNominals()
-    {
-        string? nominalsData = null;
-        while (nominalsData is null || string.IsNullOrWhiteSpace(nominalsData))
-        {
-            Console.Write("Введите номиналы через пробел: ");
-            nominalsData = Console.ReadLine();
-        }
-
-        var validNominals = new List<int>(); 
-        var ignoredInputs = new List<string>();
-        foreach (var nominalData in nominalsData.Trim().Split())
-        {
-            if (int.TryParse(nominalData, out int nominal) && Enum.IsDefined(typeof(NominalValue), nominal))
-                validNominals.Add(nominal);
-            else ignoredInputs.Add(nominalData);
-        }
-        
-        return (validNominals, ignoredInputs);
-        
-    }
-
-    public static string ReadProductName()
-    {
-        string? productName = null;
-        while (string.IsNullOrWhiteSpace(productName))
-        {
-            Console.Write("Введите название товара: ");
-            productName = Console.ReadLine();
-        }
-        
-        return productName;
-    }
-    
-    public static int ReadPrice(string productName)
-    {
-        int price;
-
-        while (true)
-        {
-            Console.Write($"Установите цену для {productName}: ");
-            string? input = Console.ReadLine();
-
-            if (!int.TryParse(input, out price))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Invalid price data");
-                Console.ResetColor();
-            }
-            else break;
-        }
-        return price;
-    }
-    
-    public static List<string> ReadProductNames()
-    {
-        string? productsData = null;
-        while (productsData is null || string.IsNullOrWhiteSpace(productsData))
-        {
-            Console.Write("Введите названия продуктов через \"|\" : ");
-            productsData = Console.ReadLine();
-        }
-
-        return (from productData in productsData.Split("|").ToList() 
-            where !string.IsNullOrWhiteSpace(productData) 
-            select productData.Trim()).ToList();
+        return true;
     }
 }
