@@ -4,9 +4,13 @@ namespace Obj_OrientedProg.Lab1;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
         ProgramController programController = new();
         programController.Run();
+
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine("Пока-пока");
+        Console.ResetColor();
     }
 }

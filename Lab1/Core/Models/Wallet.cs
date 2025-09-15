@@ -32,7 +32,7 @@ public class Wallet
     public Coin GetCoin(NominalValue nominalValue)
     {
         if (!_fund.TryGetValue(nominalValue, out var coins) || coins.Count == 0)
-            throw new KeyNotFoundException($"There's no {nominalValue}$ coin");
+            throw new KeyNotFoundException($"There's no {(int)nominalValue}$ coin");
         
         _totalAmount -= (int)nominalValue;
         
@@ -71,7 +71,7 @@ public class Wallet
         throw new ApplicationException($"Cannot get coins for amount of {requestedAmount} coins");
     }
 
-    public WalletInfo GetWalletInfo() => new WalletInfo(_totalAmount, _fund.ToDictionary(
+    public WalletInfo GetWalletInfo() => new(_totalAmount, _fund.ToDictionary(
             kvp => kvp.Key, 
             kvp => kvp.Value.Count
         ));

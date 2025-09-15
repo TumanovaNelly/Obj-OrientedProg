@@ -4,9 +4,9 @@ namespace Obj_OrientedProg.Lab1.Core.Models;
 
 public class VendingMachine
 {
-    private readonly Wallet _revenueMoney = new Wallet();
+    private readonly Wallet _revenueMoney = new();
 
-    private readonly ProductStorage _productStorage = new ProductStorage();
+    private readonly ProductStorage _productStorage = new();
     public int DepositedAmount { get; private set; }
 
     public void AcceptCoin(Coin coin)
@@ -37,7 +37,7 @@ public class VendingMachine
         var price = _productStorage.GetProductPrice(productName);
         
         if (price > DepositedAmount)
-            throw new ApplicationException("You do not have enough money to buy this product");
+            throw new ApplicationException($"You do not have enough money to buy product \"{productName}\"");
         
         DepositedAmount -= price;
         return _productStorage.GetProduct(productName);

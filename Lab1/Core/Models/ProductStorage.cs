@@ -14,18 +14,12 @@ public class ProductStorage
             _storage[productName] = new ProductBox();
         _storage[productName].AddProduct(product);
     }
-    
-    public void PutProducts(List<Product> products)
-    {
-        foreach (var product in products)
-            PutProduct(product);
-    }
 
     public Product GetProduct(string productName)
     {
         var box = GetBox(productName);
         if (box.GetProductCount() == 0)
-            throw new KeyNotFoundException($"There's no {productName} product");
+            throw new KeyNotFoundException($"There's no \"{productName}\" product");
 
         return box.GetProduct();
     }
@@ -46,7 +40,7 @@ public class ProductStorage
     private ProductBox GetBox(string productName)
     {
         if (!_storage.TryGetValue(productName, out var box))
-            throw new KeyNotFoundException($"Product {productName} not found");
+            throw new KeyNotFoundException($"Product \"{productName}\" not found");
         
         return box;
     }

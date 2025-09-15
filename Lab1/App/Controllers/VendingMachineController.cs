@@ -78,9 +78,8 @@ public class VendingMachineController(string adminPassword, Human currentUser)
     private void HandlePrintProductsInfo() =>
         ConsoleView.DisplayProducts(_vendingMachine.GetProductStorageInfo(), _vendingMachine.DepositedAmount);
 
-    private void HandlePrintHumanInfo() => 
-        ConsoleView.DisplayWalletInfo("Ваши деньги", CurrentUser.GetWalletInfo());
-
+    private void HandlePrintHumanInfo() => ConsoleView.DisplayUserInfo(CurrentUser.GetInfo());
+    
     private void HandlePrintMachineCashRegisterInfo() =>
         ConsoleView.DisplayWalletInfo("Деньги в аппарате", _vendingMachine.GetRevenueMoneyInfo());
 
@@ -213,7 +212,9 @@ public class VendingMachineController(string adminPassword, Human currentUser)
     
     private void HandleSwitchToAdmin()
     {
-        HandleReturnMoney();
+        if (_vendingMachine.DepositedAmount > 0) 
+            HandleReturnMoney();
+        
         string password;
         do
         {
@@ -228,16 +229,21 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         }
         
         _currentRole = UserRole.Administrator;
+        ConsoleView.Clear();
         ConsoleView.ShowAdminMenu();
     }
     private void HandleSwitchToCustomer()
     {
         _currentRole = UserRole.Customer;
+        ConsoleView.Clear();
         ConsoleView.ShowCustomerMenu();
     }
     private void HandleExit()
     {
+        if (_vendingMachine.DepositedAmount > 0) 
+            HandleReturnMoney();
+        
         _isRunning = false;
-        Console.Clear();
+        ConsoleView.Clear();
     }
 }

@@ -7,7 +7,7 @@ public class ProgramController
 {
     private readonly Dictionary<int, Action> _commands = new();
 
-    private readonly Human _currentUser = new();
+    private Human _currentUser = new();
     private readonly VendingMachineController _vendingMachineController;
     
     private bool _isRunning;
@@ -32,7 +32,8 @@ public class ProgramController
         _commands[1] = HandleStart;
         _commands[2] = HandlePrintHumanInfo;
         _commands[3] = HandlePutMoney;
-        _commands[4] = HandleExit;
+        _commands[4] = HandleChangeUser;
+        _commands[5] = HandleExit;
     }
     
     private static void ProcessCommand(Dictionary<int, Action> commands)
@@ -51,33 +52,59 @@ public class ProgramController
 
     private void HandleStart()
     {
-        Console.Clear();
+        ConsoleView.Clear();
         _vendingMachineController.Run();
         ConsoleView.ShowMainMenu();
     }
 
     private void HandleExit()
     {
-        Console.Clear();
+        ConsoleView.Clear();
         _isRunning = false;
     }
 
-    private void HandlePrintHumanInfo() => ConsoleView.DisplayWalletInfo("Ваши деньги", _currentUser.GetWalletInfo());
+    private void HandlePrintHumanInfo() => ConsoleView.DisplayUserInfo(_currentUser.GetInfo());
 
     private void HandlePutMoney()
     {
-        List<int> nominals;
-        List<string> ignored;
+        int nominal;
         do
         {
-            ConsoleView.DisplayRequestMessage("Введите номиналы монет: ");
+            ConsoleView.DisplayRequestMessage("Введите номинал: ");
         } 
-        while (!ConsoleInput.TryReadNominals(out nominals, out ignored));
-        
-        var coins = nominals.Select(nominal => new Coin((NominalValue)nominal)).ToList();
-        _currentUser.GetSalary(coins);
+        while (!ConsoleInput.TryReadNumber(out nominal));
 
-        foreach (var input in ignored)
-            ConsoleView.DisplayError($"Invalid nominal value {input} was ignored");
+        if (!Enum.IsDefined(typeof(NominalValue), nominal))
+        {
+            ConsoleView.DisplayError("Unknown nominal");
+            return;
+        }
+        
+        int count;
+        do
+        {
+            ConsoleView.DisplayRequestMessage("Введите количество: ");
+        } 
+        while (!ConsoleInput.TryReadNumber(out count));
+
+        if (count < 0)
+        {
+            ConsoleView.DisplayError("Count must be positive");
+            return;
+        }
+
+        List<Coin> coins = [];
+        for (int i = 0; i < count; i++)
+        {
+            coins.Add(new Coin((NominalValue)nominal));
+        }
+        
+        _currentUser.GetSalary(coins);
+    }
+
+    private void HandleChangeUser()
+    {
+        _currentUser = new Human();
+        _vendingMachineController.CurrentUser = _currentUser;
     }
 }

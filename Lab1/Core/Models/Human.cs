@@ -4,7 +4,7 @@ namespace Obj_OrientedProg.Lab1.Core.Models;
 
 public class Human
 {
-    private readonly Wallet _wallet = new Wallet();
+    private readonly Wallet _wallet = new();
 
     private readonly Queue<Product> _productsPackage = [];
 
@@ -12,15 +12,11 @@ public class Human
 
     public Coin SpendSalary(NominalValue nominalValue) => _wallet.GetCoin(nominalValue);
     
-    public WalletInfo GetWalletInfo() => _wallet.GetWalletInfo();
-    
     public void GetProduct(Product product) => _productsPackage.Enqueue(product);
 
-    public Product EatProduct()
-    {
-        var product = _productsPackage.Dequeue();
-        product.ToHarmed();
-        return product;
-    }
-    
+    public HumanInfo GetInfo() => new(GetWalletInfo(), GetProductsInfo());
+
+    private WalletInfo GetWalletInfo() => _wallet.GetWalletInfo();
+
+    private List<string> GetProductsInfo() => _productsPackage.Select(product => product.Name).ToList();
 }
