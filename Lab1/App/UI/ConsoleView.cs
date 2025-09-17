@@ -1,4 +1,5 @@
 ﻿using Obj_OrientedProg.Lab1.App.Controllers;
+using Obj_OrientedProg.Lab1.Helpers;
 using Obj_OrientedProg.Lab1.Contracts.DTOs;
 
 namespace Obj_OrientedProg.Lab1.App.UI;
@@ -65,7 +66,7 @@ public static class ConsoleView
 
     public static void DisplayError(string message) => DisplayMessage(message, ConsoleColor.Magenta);
 
-    public static void DisplayRequestMessage(string message) => DisplayMessage(message, ConsoleColor.Green, false);
+    public static void DisplayRequestMessage(string message) => DisplayMessage(message, ConsoleColor.DarkBlue, false);
     
     private static void DisplayMessage(string message, ConsoleColor color, bool toNewLine = true)
     {

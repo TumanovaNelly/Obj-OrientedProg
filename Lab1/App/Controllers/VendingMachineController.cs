@@ -55,7 +55,6 @@ public class VendingMachineController
 
     private void InitializeCommands(Human user)
     {
-        _customerCommands[Command.UI] = () => HandlePrintHumanInfo(user);
         _customerCommands[Command.PC] = () => HandleDepositCoins(user);
         _customerCommands[Command.BP] = () => HandleBuyProduct(user);
         _customerCommands[Command.RM] = () => HandleReturnMoney(user);
@@ -72,7 +71,6 @@ public class VendingMachineController
             HandleExit();
         };
         
-        _adminCommands[Command.UI] = () => HandlePrintHumanInfo(user);
         _adminCommands[Command.TM] = () => HandleTakeAllMoney(user);
     }
     
@@ -99,9 +97,7 @@ public class VendingMachineController
     }
     private void HandlePrintProductsInfo() =>
         ConsoleView.DisplayProducts(_vendingMachine.GetProductStorageInfo(), _vendingMachine.DepositedAmount);
-
-    private static void HandlePrintHumanInfo(Human user) => ConsoleView.DisplayUserInfo(user.GetInfo());
-
+    
     private void HandleDepositCoins(Human user)
     {
         List<int> nominals;
@@ -110,10 +106,13 @@ public class VendingMachineController
         {
             ConsoleView.DisplayRequestMessage("Введите номиналы монет: ");
         } 
-        while (!ConsoleInput.TryReadNominals(out nominals, out ignored));
+        while (!ConsoleInput.TryReadNumbers(out nominals, out ignored));
 
         foreach (var nominal in nominals)
         {
+            if (!Enum.IsDefined(typeof(NominalValue), nominal))
+                ConsoleView.DisplayError($"Invalid nominal value {nominal} was ignored");
+                
             try
             {
                 Coin coinIn = user.SpendSalary((NominalValue)nominal);

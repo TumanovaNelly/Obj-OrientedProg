@@ -1,6 +1,4 @@
-﻿using Obj_OrientedProg.Lab1.Core.Models;
-
-namespace Obj_OrientedProg.Lab1.App.UI;
+﻿namespace Obj_OrientedProg.Lab1.App.UI;
 
 public static class ConsoleInput
 {
@@ -39,19 +37,19 @@ public static class ConsoleInput
         return TryReadWord(out string wordsData) && int.TryParse(wordsData, out number);
     }
 
-    public static bool TryReadNominals(out List<int> validNominals, out List<string> invalidNominals)
+    public static bool TryReadNumbers(out List<int> validNumbers, out List<string> invalidNumbers)
     {
-        validNominals = [];
-        invalidNominals = [];
+        validNumbers = [];
+        invalidNumbers = [];
         
         if (!TryReadWords(out var nominalsData))
             return false;
 
         foreach (var nominalData in nominalsData)
         {
-            if (!int.TryParse(nominalData, out int nominal) || !Enum.IsDefined(typeof(NominalValue), nominal))
-                invalidNominals.Add(nominalData);
-            else validNominals.Add(nominal);
+            if (!int.TryParse(nominalData, out int nominal))
+                invalidNumbers.Add(nominalData);
+            else validNumbers.Add(nominal);
         }
         
         return true;

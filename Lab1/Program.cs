@@ -8,9 +8,5 @@ public static class Program
     {
         ProgramController programController = new();
         programController.Run();
-
-        Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.WriteLine("Пока-пока");
-        Console.ResetColor();
     }
 }
