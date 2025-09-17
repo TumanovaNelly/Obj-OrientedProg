@@ -5,15 +5,29 @@ namespace Obj_OrientedProg.Lab1.App.Controllers;
 
 public enum UserRole { Customer, Administrator }
 
-public class VendingMachineController(string adminPassword)
+public class VendingMachineController
 {
     private readonly VendingMachine _vendingMachine = new();
+    private readonly string _adminPassword;
     
     private UserRole _currentRole;
     private bool _isRunning;
     
     private readonly Dictionary<Command, Action> _customerCommands = new();
     private readonly Dictionary<Command, Action> _adminCommands = new();
+
+    public VendingMachineController(string adminPassword)
+    {
+        _adminPassword = adminPassword;
+        _customerCommands[Command.MI] = HandlePrintProductsInfo;
+        
+        _adminCommands[Command.MI] = HandlePrintMachineInfo;
+        _adminCommands[Command.PC] = HandleDepositMoney;
+        _adminCommands[Command.PP] = HandlePutProducts;
+        _adminCommands[Command.CP] = HandleChangePrice;
+        _adminCommands[Command.TC] = HandleSwitchToCustomer;
+        _adminCommands[Command.E] = HandleExit;
+    }
 
     public void Run(Human user)
     {
@@ -41,10 +55,6 @@ public class VendingMachineController(string adminPassword)
 
     private void InitializeCommands(Human user)
     {
-        _customerCommands.Clear();
-        _adminCommands.Clear();
-        
-        _customerCommands[Command.MI] = HandlePrintProductsInfo;
         _customerCommands[Command.UI] = () => HandlePrintHumanInfo(user);
         _customerCommands[Command.PC] = () => HandleDepositCoins(user);
         _customerCommands[Command.BP] = () => HandleBuyProduct(user);
@@ -63,13 +73,7 @@ public class VendingMachineController(string adminPassword)
         };
         
         _adminCommands[Command.UI] = () => HandlePrintHumanInfo(user);
-        _adminCommands[Command.MI] = HandlePrintMachineInfo;
         _adminCommands[Command.TM] = () => HandleTakeAllMoney(user);
-        _adminCommands[Command.PC] = HandleDepositMoney;
-        _adminCommands[Command.PP] = HandlePutProducts;
-        _adminCommands[Command.CP] = HandleChangePrice;
-        _adminCommands[Command.TC] = HandleSwitchToCustomer;
-        _adminCommands[Command.E] = HandleExit;
     }
     
     private static void ProcessCommand(Dictionary<Command, Action> commands)
@@ -255,7 +259,6 @@ public class VendingMachineController(string adminPassword)
             ConsoleView.DisplayError(ex.Message);
         }
     }
-
     
     private void HandleSwitchToAdmin()
     {
@@ -266,7 +269,7 @@ public class VendingMachineController(string adminPassword)
         } 
         while (!ConsoleInput.TryReadWord(out password));
         
-        if (string.Compare(password, adminPassword, StringComparison.Ordinal) != 0)
+        if (string.Compare(password, _adminPassword, StringComparison.Ordinal) != 0)
         {
             ConsoleView.DisplayError("Invalid password");
             return;

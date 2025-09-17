@@ -11,23 +11,22 @@ public class ProgramController
     private Human _currentUser = new();
     private bool _isRunning;
 
-    public void Run()
-    {
-        InitializeCommands();
-        _isRunning = true;
-        ConsoleView.ShowMenu("Главное меню", _commands.Keys.ToList());
-
-        while (_isRunning)
-            ProcessCommand(_commands);
-    }
-
-    private void InitializeCommands()
+    public ProgramController()
     {
         _commands[Command.S] = HandleStart;
         _commands[Command.UI] = HandlePrintHumanInfo;
         _commands[Command.GS] = HandlePutMoney;
         _commands[Command.CU] = HandleChangeUser;
         _commands[Command.E] = HandleExit;
+    }
+
+    public void Run()
+    {
+        _isRunning = true;
+        ConsoleView.ShowMenu("Главное меню", _commands.Keys.ToList());
+
+        while (_isRunning)
+            ProcessCommand(_commands);
     }
     
     private static void ProcessCommand(Dictionary<Command, Action> commands)
