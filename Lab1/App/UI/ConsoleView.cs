@@ -1,4 +1,5 @@
-﻿using Obj_OrientedProg.Lab1.Contracts.DTOs;
+﻿using Obj_OrientedProg.Lab1.App.Controllers;
+using Obj_OrientedProg.Lab1.Contracts.DTOs;
 
 namespace Obj_OrientedProg.Lab1.App.UI;
 
@@ -10,44 +11,19 @@ public static class ConsoleView
             Console.WriteLine();
         Console.Clear();
     }
-    public static void ShowMainMenu()
-    {
-        DisplayMessage("~~~~~ Меню ~~~~~", ConsoleColor.Cyan);
-        Console.WriteLine("1. Старт");
-        Console.WriteLine("2. Посмотреть информацию о пользователе");
-        Console.WriteLine("3. Пополнить кошелек");
-        Console.WriteLine("4. Сменить пользователя");
-        Console.WriteLine("5. Выход");
-        DisplayMessage("~~~~~~~~~~~~~~~~", ConsoleColor.Cyan);
-        Console.WriteLine();
-    }
-    public static void ShowCustomerMenu()
-    {
-        DisplayMessage("~~~~~ Меню Клиента ~~~~~", ConsoleColor.Cyan);
-        Console.WriteLine("1. Посмотреть товары");
-        Console.WriteLine("2. Посмотреть информацию о пользователе");
-        Console.WriteLine("3. Внести монету");
-        Console.WriteLine("4. Купить продукт");
-        Console.WriteLine("5. Вернуть внесенные средства");
-        Console.WriteLine("6. Перейти в режим админа");
-        Console.WriteLine("7. Уйти");
-        DisplayMessage("~~~~~~~~~~~~~~~~~~~~~~~~", ConsoleColor.Cyan);
-        Console.WriteLine();
-    }
 
-    public static void ShowAdminMenu()
+    public static void ShowMenu(string titleInfo, List<Command> commands)
     {
-        DisplayMessage("~~~~~ Меню Админа ~~~~~", ConsoleColor.Cyan);
-        Console.WriteLine("1. Посмотреть товары");
-        Console.WriteLine("2. Посмотреть информацию о пользователе");
-        Console.WriteLine("3. Посмотреть, сколько денег в автомате");
-        Console.WriteLine("4. Забрать все деньги");
-        Console.WriteLine("5. Положить деньги");
-        Console.WriteLine("6. Положить товар");
-        Console.WriteLine("7. Изменить цену на товар");
-        Console.WriteLine("8. Перейти в режим пользователя");
-        Console.WriteLine("9. Уйти");
-        DisplayMessage("~~~~~~~~~~~~~~~~~~~~~~~", ConsoleColor.Cyan);
+        string title = $"~~~~~ {titleInfo} ~~~~~";
+        DisplayMessage(title, ConsoleColor.Cyan);
+
+        foreach (var command in commands)
+        {
+            DisplayMessage($"[{command}] ", ConsoleColor.Cyan, false);
+            Console.WriteLine(command.GetDescription());
+        }
+        
+        DisplayMessage(new string('~', title.Length), ConsoleColor.Cyan);
         Console.WriteLine();
     }
 

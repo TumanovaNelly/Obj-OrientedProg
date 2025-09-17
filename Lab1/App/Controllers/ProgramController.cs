@@ -5,23 +5,17 @@ namespace Obj_OrientedProg.Lab1.App.Controllers;
 
 public class ProgramController
 {
-    private readonly Dictionary<int, Action> _commands = new();
+    private readonly Dictionary<Command, Action> _commands = new();
+    private readonly VendingMachineController _vendingMachineController = new("admin123");
 
     private Human _currentUser = new();
-    private readonly VendingMachineController _vendingMachineController;
-    
     private bool _isRunning;
 
-    public ProgramController()
-    {
-        _vendingMachineController = new VendingMachineController("admin123", _currentUser);
-    }
-    
     public void Run()
     {
         InitializeCommands();
         _isRunning = true;
-        ConsoleView.ShowMainMenu();
+        ConsoleView.ShowMenu("Главное меню", _commands.Keys.ToList());
 
         while (_isRunning)
             ProcessCommand(_commands);
@@ -29,23 +23,25 @@ public class ProgramController
 
     private void InitializeCommands()
     {
-        _commands[1] = HandleStart;
-        _commands[2] = HandlePrintHumanInfo;
-        _commands[3] = HandlePutMoney;
-        _commands[4] = HandleChangeUser;
-        _commands[5] = HandleExit;
+        _commands[Command.S] = HandleStart;
+        _commands[Command.UI] = HandlePrintHumanInfo;
+        _commands[Command.GS] = HandlePutMoney;
+        _commands[Command.CU] = HandleChangeUser;
+        _commands[Command.E] = HandleExit;
     }
     
-    private static void ProcessCommand(Dictionary<int, Action> commands)
+    private static void ProcessCommand(Dictionary<Command, Action> commands)
     {
-        int commandNumber;
+        string input;
         do
         {
-            ConsoleView.DisplayRequestMessage("Введите номер команды: ");
+            ConsoleView.DisplayRequestMessage("Введите имя команды: ");
         } 
-        while (!ConsoleInput.TryReadNumber(out commandNumber));
+        while (!ConsoleInput.TryReadWord(out input));
         
-        if (commands.TryGetValue(commandNumber, out var action))
+        
+        if (Enum.TryParse<Command>(input, true, out var command) 
+            && commands.TryGetValue(command, out var action))
             action.Invoke();
         else ConsoleView.DisplayError("Unknown command");
     }
@@ -53,8 +49,8 @@ public class ProgramController
     private void HandleStart()
     {
         ConsoleView.Clear();
-        _vendingMachineController.Run();
-        ConsoleView.ShowMainMenu();
+        _vendingMachineController.Run(_currentUser);
+        ConsoleView.ShowMenu("Главное меню", _commands.Keys.ToList());
     }
 
     private void HandleExit()
@@ -95,16 +91,10 @@ public class ProgramController
 
         List<Coin> coins = [];
         for (int i = 0; i < count; i++)
-        {
             coins.Add(new Coin((NominalValue)nominal));
-        }
         
         _currentUser.GetSalary(coins);
     }
 
-    private void HandleChangeUser()
-    {
-        _currentUser = new Human();
-        _vendingMachineController.CurrentUser = _currentUser;
-    }
+    private void HandleChangeUser() => _currentUser = new Human();
 }

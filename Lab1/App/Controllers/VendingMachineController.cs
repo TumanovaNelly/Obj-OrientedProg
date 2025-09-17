@@ -5,23 +5,22 @@ namespace Obj_OrientedProg.Lab1.App.Controllers;
 
 public enum UserRole { Customer, Administrator }
 
-public class VendingMachineController(string adminPassword, Human currentUser)
+public class VendingMachineController(string adminPassword)
 {
     private readonly VendingMachine _vendingMachine = new();
-    public Human CurrentUser { private get; set; } = currentUser;
-
+    
     private UserRole _currentRole;
     private bool _isRunning;
+    
+    private readonly Dictionary<Command, Action> _customerCommands = new();
+    private readonly Dictionary<Command, Action> _adminCommands = new();
 
-    private readonly Dictionary<int, Action> _customerCommands = new();
-    private readonly Dictionary<int, Action> _adminCommands = new();
-
-    public void Run()
+    public void Run(Human user)
     {
-        InitializeCommands();
+        InitializeCommands(user);
         _isRunning = true;
         _currentRole = UserRole.Customer;
-        ConsoleView.ShowCustomerMenu();
+        ConsoleView.ShowMenu("Меню покупателя", _customerCommands.Keys.ToList());
 
         while (_isRunning)
         {
@@ -40,50 +39,66 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         }
     }
 
-    private void InitializeCommands()
+    private void InitializeCommands(Human user)
     {
-        _customerCommands[1] = HandlePrintProductsInfo;
-        _customerCommands[2] = HandlePrintHumanInfo;
-        _customerCommands[3] = HandleDepositCoins;
-        _customerCommands[4] = HandleBuyProduct;
-        _customerCommands[5] = HandleReturnMoney;
-        _customerCommands[6] = HandleSwitchToAdmin;
-        _customerCommands[7] = HandleExit;
+        _customerCommands.Clear();
+        _adminCommands.Clear();
         
-        _adminCommands[1] = HandlePrintProductsInfo;
-        _adminCommands[2] = HandlePrintHumanInfo;
-        _adminCommands[3] = HandlePrintMachineCashRegisterInfo;
-        _adminCommands[4] = HandleTakeAllMoney;
-        _adminCommands[5] = HandleDepositCoins;
-        _adminCommands[6] = HandlePutProducts;
-        _adminCommands[7] = HandleChangePrice;
-        _adminCommands[8] = HandleSwitchToCustomer;
-        _adminCommands[9] = HandleExit;
+        _customerCommands[Command.MI] = HandlePrintProductsInfo;
+        _customerCommands[Command.UI] = () => HandlePrintHumanInfo(user);
+        _customerCommands[Command.PC] = () => HandleDepositCoins(user);
+        _customerCommands[Command.BP] = () => HandleBuyProduct(user);
+        _customerCommands[Command.RM] = () => HandleReturnMoney(user);
+        _customerCommands[Command.TA] = () =>
+        {
+            if (_vendingMachine.DepositedAmount > 0) 
+                HandleReturnMoney(user);
+            HandleSwitchToAdmin();
+        };
+        _customerCommands[Command.E] = () =>
+        {
+            if (_vendingMachine.DepositedAmount > 0) 
+                HandleReturnMoney(user);
+            HandleExit();
+        };
+        
+        _adminCommands[Command.UI] = () => HandlePrintHumanInfo(user);
+        _adminCommands[Command.MI] = HandlePrintMachineInfo;
+        _adminCommands[Command.TM] = () => HandleTakeAllMoney(user);
+        _adminCommands[Command.PC] = HandleDepositMoney;
+        _adminCommands[Command.PP] = HandlePutProducts;
+        _adminCommands[Command.CP] = HandleChangePrice;
+        _adminCommands[Command.TC] = HandleSwitchToCustomer;
+        _adminCommands[Command.E] = HandleExit;
     }
     
-    private static void ProcessCommand(Dictionary<int, Action> commands)
+    private static void ProcessCommand(Dictionary<Command, Action> commands)
     {
-        int commandNumber;
+        string input;
         do
         {
-            ConsoleView.DisplayRequestMessage("Введите номер команды: ");
+            ConsoleView.DisplayRequestMessage("Введите имя команды: ");
         } 
-        while (!ConsoleInput.TryReadNumber(out commandNumber));
+        while (!ConsoleInput.TryReadWord(out input));
         
-        if (commands.TryGetValue(commandNumber, out var action))
+        
+        if (Enum.TryParse<Command>(input, true, out var command) 
+            && commands.TryGetValue(command, out var action))
             action.Invoke();
         else ConsoleView.DisplayError("Unknown command");
     }
 
+    private void HandlePrintMachineInfo()
+    {
+        HandlePrintProductsInfo();
+        ConsoleView.DisplayWalletInfo("Деньги в аппарате", _vendingMachine.GetRevenueMoneyInfo());
+    }
     private void HandlePrintProductsInfo() =>
         ConsoleView.DisplayProducts(_vendingMachine.GetProductStorageInfo(), _vendingMachine.DepositedAmount);
 
-    private void HandlePrintHumanInfo() => ConsoleView.DisplayUserInfo(CurrentUser.GetInfo());
-    
-    private void HandlePrintMachineCashRegisterInfo() =>
-        ConsoleView.DisplayWalletInfo("Деньги в аппарате", _vendingMachine.GetRevenueMoneyInfo());
+    private static void HandlePrintHumanInfo(Human user) => ConsoleView.DisplayUserInfo(user.GetInfo());
 
-    private void HandleDepositCoins()
+    private void HandleDepositCoins(Human user)
     {
         List<int> nominals;
         List<string> ignored;
@@ -97,7 +112,7 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         {
             try
             {
-                Coin coinIn = CurrentUser.SpendSalary((NominalValue)nominal);
+                Coin coinIn = user.SpendSalary((NominalValue)nominal);
                 if (_currentRole == UserRole.Administrator)
                     _vendingMachine.PutCoinInCashRegister(coinIn);
                 else _vendingMachine.AcceptCoin(coinIn);
@@ -111,8 +126,40 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         foreach (var input in ignored)
             ConsoleView.DisplayError($"Invalid nominal value {input} was ignored");
     }
+
+    private void HandleDepositMoney()
+    {
+        int nominal;
+        do
+        {
+            ConsoleView.DisplayRequestMessage("Введите номинал: ");
+        } 
+        while (!ConsoleInput.TryReadNumber(out nominal));
+
+        if (!Enum.IsDefined(typeof(NominalValue), nominal))
+        {
+            ConsoleView.DisplayError("Unknown nominal");
+            return;
+        }
+        
+        int count;
+        do
+        {
+            ConsoleView.DisplayRequestMessage("Введите количество: ");
+        } 
+        while (!ConsoleInput.TryReadNumber(out count));
+
+        if (count < 0)
+        {
+            ConsoleView.DisplayError("Count must be positive");
+            return;
+        }
+
+        for (int i = 0; i < count; i++)
+            _vendingMachine.PutCoinInCashRegister(new Coin((NominalValue)nominal));
+    }
     
-    private void HandleBuyProduct()
+    private void HandleBuyProduct(Human user)
     {
         string productName;
         do
@@ -123,7 +170,7 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         
         try
         {
-            CurrentUser.GetProduct(_vendingMachine.BuyProduct(productName)); 
+            user.GetProduct(_vendingMachine.BuyProduct(productName)); 
         }
         catch (ApplicationException ex)
         {
@@ -135,7 +182,7 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         }
     }
 
-    private void HandleReturnMoney()
+    private void HandleReturnMoney(Human user)
     {
         if (_vendingMachine.DepositedAmount == 0)
         {
@@ -145,14 +192,14 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         
         try
         {
-            CurrentUser.GetSalary(_vendingMachine.ReturnDepositedAmount());
+            user.GetSalary(_vendingMachine.ReturnDepositedAmount());
         }
         catch (ApplicationException ex)
         {
             ConsoleView.DisplayError(ex.Message);
         }
     }
-    private void HandleTakeAllMoney() => CurrentUser.GetSalary(_vendingMachine.StealRevenue());
+    private void HandleTakeAllMoney(Human user) => user.GetSalary(_vendingMachine.StealRevenue());
 
     private void HandlePutProducts()
     {
@@ -212,9 +259,6 @@ public class VendingMachineController(string adminPassword, Human currentUser)
     
     private void HandleSwitchToAdmin()
     {
-        if (_vendingMachine.DepositedAmount > 0) 
-            HandleReturnMoney();
-        
         string password;
         do
         {
@@ -230,19 +274,16 @@ public class VendingMachineController(string adminPassword, Human currentUser)
         
         _currentRole = UserRole.Administrator;
         ConsoleView.Clear();
-        ConsoleView.ShowAdminMenu();
+        ConsoleView.ShowMenu("Меню администратора", _adminCommands.Keys.ToList());
     }
     private void HandleSwitchToCustomer()
     {
         _currentRole = UserRole.Customer;
         ConsoleView.Clear();
-        ConsoleView.ShowCustomerMenu();
+        ConsoleView.ShowMenu("Меню покупателя", _customerCommands.Keys.ToList());
     }
     private void HandleExit()
     {
-        if (_vendingMachine.DepositedAmount > 0) 
-            HandleReturnMoney();
-        
         _isRunning = false;
         ConsoleView.Clear();
     }
