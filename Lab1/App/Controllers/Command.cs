@@ -22,6 +22,8 @@ public enum Command
     PC, // put coins
     [Description("Купить продукт")]
     BP, // buy product
+    [Description("Забрать продукт")]
+    GP, // get product
     [Description("Положить продукты")]
     PP, // put products
     [Description("Изменить цену на товар")]

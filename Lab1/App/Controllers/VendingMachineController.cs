@@ -72,6 +72,7 @@ public class VendingMachineController
         };
         
         _adminCommands[Command.TM] = () => HandleTakeAllMoney(user);
+        _adminCommands[Command.GP] = () => HandleGetProducts(user);
     }
     
     private static void ProcessCommand(Dictionary<Command, Action> commands)
@@ -221,6 +222,29 @@ public class VendingMachineController
             
             if (_vendingMachine.GetProductInfo(productName).Count > 1) continue;
             ChangePriceByName(productName);
+        }
+    }
+    
+    private void HandleGetProducts(Human user)
+    {
+        List<string> productsNames;
+
+        do
+        {
+            ConsoleView.DisplayRequestMessage("Введите названия товаров: ");
+        } 
+        while (!ConsoleInput.TryReadWords(out productsNames));
+
+        foreach (var productName in productsNames)
+        {
+            try
+            {
+                user.GetProduct(_vendingMachine.GetProductFromStorage(productName));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ConsoleView.DisplayError(ex.Message);
+            }
         }
     }
 

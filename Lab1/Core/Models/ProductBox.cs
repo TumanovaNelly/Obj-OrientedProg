@@ -4,15 +4,15 @@ public class ProductBox
 {
     private readonly Queue<Product> _products = [];
     
-    private int _pricePerProductPerProduct;
+    private int _pricePerProduct;
     public int PricePerProduct
     {
-        get => _pricePerProductPerProduct;
+        get => _pricePerProduct;
         set
         {
             if (value < 0) 
                 throw new ArgumentException("Price cannot be negative");
-            _pricePerProductPerProduct = value;
+            _pricePerProduct = value;
         }
     }
     

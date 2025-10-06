@@ -39,9 +39,12 @@ public class VendingMachine
         if (price > DepositedAmount)
             throw new ApplicationException($"You do not have enough money to buy product \"{productName}\"");
         
+        var product = _productStorage.GetProduct(productName);
         DepositedAmount -= price;
-        return _productStorage.GetProduct(productName);
+        return product;
     }
+    
+    public Product GetProductFromStorage(string productName) => _productStorage.GetProduct(productName);
 
     public void AddProductToStorage(Product product) => _productStorage.PutProduct(product);
     
