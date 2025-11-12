@@ -1,8 +1,8 @@
-﻿using Obj_OrientedProg.Lab1.App.Controllers;
-using Obj_OrientedProg.Lab1.Helpers;
-using Obj_OrientedProg.Lab1.Contracts.DTOs;
+﻿using Obj_OrientedProg.Lab0.App.Controllers;
+using Obj_OrientedProg.Lab0.Contracts.DTOs;
+using Obj_OrientedProg.Lab0.Helpers;
 
-namespace Obj_OrientedProg.Lab1.App.UI;
+namespace Obj_OrientedProg.Lab0.App.UI;
 
 public static class ConsoleView
 {

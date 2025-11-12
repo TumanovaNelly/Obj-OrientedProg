@@ -1,4 +1,4 @@
-﻿namespace Obj_OrientedProg.Lab1.App.UI;
+﻿namespace Obj_OrientedProg.Lab0.App.UI;
 
 public static class ConsoleInput
 {

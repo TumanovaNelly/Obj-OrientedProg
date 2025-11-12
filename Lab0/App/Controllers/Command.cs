@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Obj_OrientedProg.Lab1.App.Controllers;
+namespace Obj_OrientedProg.Lab0.App.Controllers;
 
 public enum Command
 {

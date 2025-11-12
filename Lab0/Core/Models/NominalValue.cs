@@ -1,4 +1,4 @@
-﻿namespace Obj_OrientedProg.Lab1.Core.Models;
+﻿namespace Obj_OrientedProg.Lab0.Core.Models;
 
 public enum NominalValue
 {

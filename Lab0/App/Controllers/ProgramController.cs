@@ -1,7 +1,7 @@
-﻿using Obj_OrientedProg.Lab1.App.UI;
-using Obj_OrientedProg.Lab1.Core.Models;
+﻿using Obj_OrientedProg.Lab0.App.UI;
+using Obj_OrientedProg.Lab0.Core.Models;
 
-namespace Obj_OrientedProg.Lab1.App.Controllers;
+namespace Obj_OrientedProg.Lab0.App.Controllers;
 
 public class ProgramController
 {
@@ -22,6 +22,7 @@ public class ProgramController
 
     public void Run()
     {
+        ConsoleView.Clear();
         _isRunning = true;
         ConsoleView.ShowMenu("Главное меню", _commands.Keys.ToList());
 

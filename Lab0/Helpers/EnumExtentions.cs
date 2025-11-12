@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace Obj_OrientedProg.Lab1.Helpers;
+namespace Obj_OrientedProg.Lab0.Helpers;
 
 public static class EnumExtensions
 {
