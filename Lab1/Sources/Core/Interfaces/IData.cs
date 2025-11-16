@@ -1,6 +1,6 @@
 ﻿namespace Obj_OrientedProg.Lab1.Sources.Core.Interfaces;
 
-public interface IPlace
+public interface IData
 {
-    public string Info { get; }
+    string Info { get; }
 }

@@ -2,7 +2,7 @@
 
 namespace Obj_OrientedProg.Lab1.Sources.Core.Models;
 
-public class Link(string link) : IPlace
+public class SpecificDayData(DateOnly date) : IData
 {
-    public string Info => $"Онлайн занятие: {link}";
+    public string Info { get; } = date.ToShortDateString();
 }

@@ -1,6 +1,13 @@
 ﻿namespace Obj_OrientedProg.Lab1.Sources.Core.Models;
 
-public class StudentProfile
+public class StudentProfile(string group)
 {
-    private static List<Course> EnrolledCourses { get; set; } = [];
+    public string Group { get; } = group;
+    public IReadOnlyList<Course> Courses => _enrolledCourses.AsReadOnly();
+
+
+    private readonly List<Course> _enrolledCourses = [];
+
+
+    public void AddEnrolledCourse(Course course) => _enrolledCourses.Add(course);
 }
