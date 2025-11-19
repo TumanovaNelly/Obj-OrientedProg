@@ -14,14 +14,12 @@ public class Course(string title) : IEntity
     private readonly List<Person> _enrolledPersons = [];
     private readonly List<ICourseFormat> _formats = [];
 
-    public void AssignResponsiblePerson(Person person)
-    {
-        ResponsiblePerson = person;
-    }
-    
+    public void AssignResponsiblePerson(Person person) => ResponsiblePerson = person;
+
     public void AddEnrolledPerson(Person person)
     {
-        _enrolledPersons.Add(person);
+        if (!_enrolledPersons.Contains(person)) 
+            _enrolledPersons.Add(person);
     }
     
     public void AddFormat(ICourseFormat format) => _formats.Add(format);

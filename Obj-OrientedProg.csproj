@@ -10,9 +10,7 @@
 
     <ItemGroup>
       <Folder Include="Lab0\Contracts\" />
-      <Folder Include="Lab0\Tests\Core\" />
-      <Folder Include="Lab1\Sources\UI\" />
-      <Folder Include="Lab1\Tests\" />
+      <Folder Include="Lab1\UI\" />
     </ItemGroup>
 
 </Project>
